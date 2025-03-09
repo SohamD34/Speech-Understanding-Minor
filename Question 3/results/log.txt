@@ -1,0 +1,21 @@
+2025-03-09 19:15:06,811 - 
+Training accuracies:
+SVM: 0.5625
+Decision Tree: 1.0
+GMM: 0.125
+
+Testing accuracies:
+SVM: 0.25
+Decision Tree: 0.16666666666666666
+GMM: 0.5
+2025-03-09 19:34:26,448 - 
+Training accuracies:
+SVM: 0.5625
+Decision Tree: 1.0
+GMM: 0.16666666666666666
+
+Testing accuracies:
+SVM: 0.25
+Decision Tree: 0.08333333333333333
+GMM: 0.08333333333333333
+
