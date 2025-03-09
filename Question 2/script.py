@@ -1,3 +1,5 @@
+# Importing the necessary libraries
+
 import numpy as np
 import librosa
 import matplotlib.pyplot as plt
@@ -10,11 +12,14 @@ import argparse
 import warnings
 warnings.filterwarnings('ignore')
 
-
+# Defining some global parameters that will remain common throughout the script
 FRAME_SIZE = 1024
 HOP_SIZE = 512
 N_MFCC = 13
 
+
+# Checking if there is any pre-existing output directory, due to previoud iterations. 
+# This step is important to avoid corruption of data stored during runtime. If yes, we remove it and create a new one.
 
 def check_output_dir():
     if os.path.exists(features_dir):
@@ -23,10 +28,14 @@ def check_output_dir():
     return True
 
 
+# Loading the audio file into a vector format
+
 def load_audio(file_path):
     y, sr = librosa.load(file_path, sr=None)
     return y, sr
 
+
+# Saving the data in JSON format - helful to store dictionaries and lists 
 
 def save_json(data, file_name):
     output_path = f'{features_dir}/{file_name}.json'
@@ -34,10 +43,14 @@ def save_json(data, file_name):
         json.dump(data, f, indent=4, default=str)
 
 
+# Padding the audio to make sure that the audio is divisible into frames of size 1024
+
 def pad_audio(audio):
     pad_length = (len(audio) - FRAME_SIZE) % HOP_SIZE
     return np.pad(audio, (0, pad_length))
 
+
+# Dividing the audio into the frames of size = FRAME_SIZE and with a hop size of HOP_SIZE
 
 def get_frames(padded_audio):
     num_frames = int((len(padded_audio) - FRAME_SIZE) / HOP_SIZE)
@@ -49,6 +62,8 @@ def get_frames(padded_audio):
         
     return frames
 
+
+# Calculating the Zero Crossing Rate of the audio
 
 def calculate_zcr(audio):
     padded_audio = pad_audio(audio)
@@ -62,6 +77,8 @@ def calculate_zcr(audio):
     return np.mean(np.array(zcr_values))
 
 
+# Calculating the Short Time Energy of the audio
+
 def calculate_short_time_energy(audio):
     padded_audio = pad_audio(audio)
     frames = get_frames(padded_audio)
@@ -73,6 +90,8 @@ def calculate_short_time_energy(audio):
     
     return np.mean(np.array(energy_values))
 
+
+# Extracting the Mel-Frequency Cepstral Coefficient (MFCC) features from the audio
 
 def extract_mfcc_features(y, sr):
     mfcc_features = {}
@@ -94,6 +113,8 @@ def extract_mfcc_features(y, sr):
     return mfcc_features
 
 
+# Extracting the audio features like ZCR, STE and MFCC from the audio
+
 def extract_audio_features(y, sr):
     features = {}
     
@@ -108,12 +129,15 @@ def extract_audio_features(y, sr):
     return features
 
 
+# Processing the audio file to extract the features
+
 def process_audio_file(file_path):
     y, sr = load_audio(file_path)
     features = extract_audio_features(y, sr)
     return features
 
 
+# Extracting the features from all the files in the dataset
 
 def extract_dataset_features(dataset_dir):
     
@@ -143,10 +167,12 @@ def extract_dataset_features(dataset_dir):
 
 
 
+
 if __name__ == '__main__':
     
-    """Main function to parse arguments and run the feature extraction."""
-    
+    # We are loading all the files from the 'data' directory and extracting the features from them
+    # The features are then saved in the 'features' directory
+        
     data_dir =  'data'
     features_dir = 'features'
     

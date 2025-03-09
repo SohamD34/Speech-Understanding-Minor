@@ -20,16 +20,26 @@ def compute_f0(y: np.ndarray, sr: int) -> float:
     f0 : float - Fundamental frequency in Hz
     """
     n_fft = 2048
+
+    # Here, I am using Hamming Window to window the signal. This can be replaced by any other windowing function
+    # like Hann or Rectangular window
+
     y_windowed = y * np.hanning(len(y)) if len(y) <= n_fft else y[:n_fft] * np.hanning(n_fft)
     
+    # Computing the autocorrelation of the windowed signal (source cited in the report)
+
     corr = librosa.autocorrelate(y_windowed)
     min_freq, max_freq = 50, 400
+
+    # Using a range of 50 Hz to 400 Hz to find the fundamental frequency
     
     min_lag = int(sr / max_freq)
     max_lag = int(sr / min_freq)
     
     min_lag = max(min_lag, 1)
     max_lag = min(max_lag, len(corr) - 1)
+
+    # The lag value at which the autocorrelation is maximum gives the fundamental frequency
     
     lag = np.argmax(corr[min_lag:max_lag]) + min_lag
     f0 = sr / lag if lag > 0 else 0.0
@@ -49,12 +59,20 @@ def extract_formants(y: np.array, order: int = 16, sr: int = 22050) -> Tuple[flo
     Tuple[float, float, float, float] - F0, F1, F2, F3 formant frequencies in Hz
     """
 
+    # Checking for NaN or Inf values in the audio signal
+
     if not np.isfinite(y).all():
         raise ValueError("Audio contains NaN or Inf values")
     
+    # First, we compute the fundamental frequency of the audio signal
+
     f0 = compute_f0(y, sr)
     
+    # We preemphasize the audio signal to remove the low frequency noise, which enhances the formant frequencies (source cited in the report)
+
     y = librosa.effects.preemphasis(y)
+
+    # We compute the autocorrelation of the audio signal
     
     fwd_pred_error = y[1:]
     back_pred_error = y[:-1]
@@ -68,6 +86,8 @@ def extract_formants(y: np.array, order: int = 16, sr: int = 22050) -> Tuple[flo
     
     epsilon = np.finfo(y.dtype).eps    
     den[0] = np.sum(fwd_pred_error**2 + back_pred_error**2)
+
+    # We compute the reflection coefficients using the Levinson-Durbin algorithm (source cited in the report)
     
     for i in range(order):
 
@@ -88,16 +108,22 @@ def extract_formants(y: np.array, order: int = 16, sr: int = 22050) -> Tuple[flo
         fwd_pred_error = fwd_pred_error[1:]
         back_pred_error = back_pred_error[:-1]
     
+    # The autoregressive process gives the formant frequencies as the roots of the polynomial.
 
     roots = np.roots(autoregressive_coeffs)    
     roots = roots[np.abs(roots) < 1]                # stable roots (mag < 1)
     roots = roots[np.imag(roots) > 0]               # positive imaginautoregressivey pautoregressivet (any one conjugate)
     
+    # Computing tan inverse of the roots to get the angles
+
     angles = np.angle(roots)
     
+    # Converting the angles to frequencies
+
     formants_freq = angles * (sr / (2 * np.pi))
-    
     formants_freq = np.sort(formants_freq)
+
+    # Returning the fundamental frequency and the first three formant frequencies
 
     if len(formants_freq) >= 3:
         return f0, formants_freq[0], formants_freq[1], formants_freq[2]
@@ -123,6 +149,8 @@ if __name__ == "__main__":
         dir = os.path.join(os.getcwd(), 'data')
         os.chdir(dir)
         classes = os.listdir()
+
+        # Extracting formants from the audio files and storing them in a dataframe
 
         data = pd.DataFrame(columns=['F0', 'F1', 'F2', 'F3', 'Label'])
         
@@ -153,22 +181,22 @@ if __name__ == "__main__":
 
         data.to_csv('audio_feature_data.csv', index=False)
 
+        # Plotting the F1 vs F2 scatter plot.
+
         os.chdir('../results/')
         cmap = plt.get_cmap('viridis', len(set(all_classes)))
         colors = [cmap(i) for i in range(len(set(all_classes)))]
 
         class_to_color = {label: colors[i] for i, label in enumerate(set(all_classes))}
         color_list = [class_to_color[label] for label in all_classes]
+        handles = [plt.Line2D([0], [0], marker='o', color='w', markerfacecolor=color, markersize=10) for color in colors]
+        labels = list(class_to_color.keys())
 
         plt.scatter(all_f1, all_f2, c=color_list, label=all_classes)
         plt.xlabel('F1 (Hz)')
         plt.ylabel('F2 (Hz)')
-        plt.title('F1 vs F2')
-
-        handles = [plt.Line2D([0], [0], marker='o', color='w', markerfacecolor=color, markersize=10) for color in colors]
-        labels = list(class_to_color.keys())
+        plt.title('F1 vs F2')        
         plt.legend(handles, labels, title="Classes")
-
         plt.savefig('F1-F2 Plots/F1_vs_F2.png')
 
         print("Data extracted successfully to 'Question 3/data/audio_feature_data.csv'")

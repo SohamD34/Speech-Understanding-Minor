@@ -1,3 +1,5 @@
+# Importing all the necessary libraries
+
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -13,16 +15,22 @@ from utils import *
 os.chdir('/home/soham/Desktop/IIT Jodhpur/Speech Understanding/Speech-Understanding-Minor/Question 3')
 
 
+# Loading the data
+
 def load_data():
     data = pd.read_csv('data/audio_feature_data.csv')
     return data
 
+# Validating the data
 
 def validate_data(data):
     if data.isnull().values.any():
         return False
     return True
 
+
+# Preprocessing  - Standard Scaling, Label Encoding
+# Splitting the data - 80% training and 20% testing
 
 def preprocess_split_data(data):
 
@@ -40,6 +48,8 @@ def preprocess_split_data(data):
     return X_train, X_test, Y_train, Y_test
 
 
+# Training steps for 3 statistical models - SVM, Decision Tree, GMM
+
 def train_models(X_train, Y_train):
 
     svm = SVC()
@@ -56,6 +66,8 @@ def train_models(X_train, Y_train):
 
     return [svm, dt, gmm], [svm_train_acc, dt_train_acc, gmm_train_acc]
 
+
+# Testing the trained models on the test data
 
 def test_models(models, X_test, Y_test):
 
@@ -84,6 +96,9 @@ if __name__ == "__main__":
 
     data = load_data()
 
+    # Before training, we need to check that the data is valid and does not contain any null values
+    # This is to ensure that the models are trained properly
+
     if not validate_data(data):
         print('Data contains null values')
 
@@ -91,6 +106,8 @@ if __name__ == "__main__":
         X_train, X_test, Y_train, Y_test = preprocess_split_data(data)
         models, train_acc = train_models(X_train, Y_train)
         test_acc = test_models(models, X_test, Y_test)
+
+        # Logging the results
 
         result = f'''
 Training accuracies:
