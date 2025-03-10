@@ -8,6 +8,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.svm import SVC
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.mixture import GaussianMixture
+from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
 from sklearn.preprocessing import StandardScaler
 import os
@@ -64,7 +65,11 @@ def train_models(X_train, Y_train):
     gmm.fit(X_train, Y_train)
     gmm_train_acc = accuracy_score(Y_train, gmm.predict(X_train))
 
-    return [svm, dt, gmm], [svm_train_acc, dt_train_acc, gmm_train_acc]
+    knn = KNeighborsClassifier()
+    knn.fit(X_train, Y_train)
+    knn_train_acc = accuracy_score(Y_train, knn.predict(X_train))
+
+    return [svm, dt, gmm, knn], [svm_train_acc, dt_train_acc, gmm_train_acc, knn_train_acc]
 
 
 # Testing the trained models on the test data
@@ -74,6 +79,7 @@ def test_models(models, X_test, Y_test):
     svm_test_acc = accuracy_score(Y_test, models[0].predict(X_test))
     dt_test_acc = accuracy_score(Y_test, models[1].predict(X_test))
     gmm_test_acc = accuracy_score(Y_test, models[2].predict(X_test))
+    knn_test_acc = accuracy_score(Y_test, models[3].predict(X_test))
 
     for i, model in enumerate(models):
 
@@ -88,7 +94,7 @@ def test_models(models, X_test, Y_test):
         plt.savefig(f'results/Confusion-Matrices/confusion_matrix_{i}.png')
         plt.close()
 
-    return [svm_test_acc, dt_test_acc, gmm_test_acc]
+    return [svm_test_acc, dt_test_acc, gmm_test_acc, knn_test_acc]
 
 
 
@@ -114,11 +120,13 @@ Training accuracies:
 SVM: {train_acc[0]}
 Decision Tree: {train_acc[1]}
 GMM: {train_acc[2]}
+KNN: {train_acc[3]}
 
 Testing accuracies:
 SVM: {test_acc[0]}
 Decision Tree: {test_acc[1]}
 GMM: {test_acc[2]}
+KNN: {test_acc[3]}
 '''
 
         log_text('results/log.txt', result)

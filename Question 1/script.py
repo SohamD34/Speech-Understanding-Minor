@@ -16,7 +16,7 @@ def plot_audio_features(y, sr, times, f0):
 
     # plotting the waveform in its raw format
     plt.figure(figsize=(15, 4))
-    lb.display.waveshow(y, sr=sr)       
+    lb.display.waveshow(y, sr=sr, color='blue')       
     plt.title('Waveform')
     plt.xlabel('Time (s)')
     plt.ylabel('Amplitude')
@@ -34,7 +34,7 @@ def plot_audio_features(y, sr, times, f0):
     
     # Computing the pitch using the fundamental frequencies v/s time
     plt.figure(figsize=(15, 4))
-    plt.plot(times, f0, label='f0', color='cyan', linewidth=2)
+    plt.plot(times, f0, label='f0', color='blue', linewidth=2)
     plt.title('Fundamental Frequency (Pitch)')
     plt.xlabel('Time (s)')
     plt.ylabel('Frequency (Hz)')
