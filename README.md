@@ -11,6 +11,7 @@ root
 ├── requirements.txt
 ├── LICENSE
 ├── README.md
+├── B21EE067 - CSL7770 - Minor Exam Report.pdf          (Report for the exam submission)
 ├── Question 1
 │       ├── data
 │       ├── results
@@ -19,26 +20,25 @@ root
 │       │      ├── spectrograms
 │       │      └── waveforms
 │       ├── script.py
-│       ├── utils.py
-│       └── Report_Question_1.pdf
+│       └── utils.py
 │ 
 ├── Question 2
 │       ├── data
 │       ├── features
-│       ├── results
 │       ├── script.py
-│       ├── utils.py
-│       └── Report_Question_2.pdf
+│       └── utils.py
 │
 └── Question 3
         ├── data
         ├── results
         │      ├── log.txt
+        │      ├── Features
         │      ├── Confusion-Matrices
         │      └── F1-F2 Plots
         ├── classification.py
         ├── feature_extraction.py
-        └── Report_Question_3.pdf
+        └── utils.py
+        
 ```
 
 
